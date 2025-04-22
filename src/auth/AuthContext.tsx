@@ -56,10 +56,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.post('/auth/login', {
         email,
         password,
+      }, {
+        withCredentials: true,  // Fix added here for CORS issue
       });
+
       const { access_token } = response.data;
       localStorage.setItem('token', access_token);
       setToken(access_token);
+
       const userResponse = await api.get('/auth/profile');
       setUser(userResponse.data);
       localStorage.setItem('user', JSON.stringify(userResponse.data));
@@ -78,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
       });
-      
+
       const { access_token, ...userData } = response.data;
       localStorage.setItem('token', access_token);
       localStorage.setItem('user', JSON.stringify(userData));
