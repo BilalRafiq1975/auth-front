@@ -7,7 +7,6 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
     'Accept': 'application/json',
-    'Access-Control-Allow-Credentials': 'true',
   },
 });
 
