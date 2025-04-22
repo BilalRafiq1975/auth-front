@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedToken) {
         setToken(storedToken);
         try {
-          const response = await api.get('/auth/profile');
+          const response = await api.get('/profile');
           setUser(response.data);
           localStorage.setItem('user', JSON.stringify(response.data));
         } catch (error) {
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await api.post('/auth/login', {
+      const response = await api.post('/login', {
         email,
         password,
       }, {
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('token', access_token);
       setToken(access_token);
 
-      const userResponse = await api.get('/auth/profile');
+      const userResponse = await api.get('/profile');
       setUser(userResponse.data);
       localStorage.setItem('user', JSON.stringify(userResponse.data));
     } catch (error: any) {
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      const response = await api.post('/auth/register', {
+      const response = await api.post('/register', {
         name,
         email,
         password,
