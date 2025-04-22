@@ -28,6 +28,10 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
+    } else if (error.response?.status === 0) {
+      // Handle CORS errors
+      console.error('CORS Error:', error);
+      throw new Error('Network error. Please check your connection and try again.');
     }
     return Promise.reject(error);
   }
