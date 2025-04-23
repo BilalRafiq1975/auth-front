@@ -11,12 +11,8 @@ const axiosInstance = axios.create({
 
 // Add a request interceptor to include the token if available
 axiosInstance.interceptors.request.use((config) => {
-  // Get token from cookie
-  const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-  
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  // We don't need to manually set the token in the Authorization header
+  // because the cookie will be sent automatically with withCredentials: true
   return config;
 });
 

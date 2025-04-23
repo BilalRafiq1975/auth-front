@@ -67,9 +67,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const response = await axiosInstance.get('/auth/me');
           if (response.status === 200 && response.data.user) {
             // Update user data from server
-            setUser(response.data.user);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            console.log('User authenticated with server:', response.data.user);
+            const userData = response.data.user;
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+            console.log('User authenticated with server:', userData);
           }
         } catch (error) {
           console.error('Error verifying authentication:', error);
@@ -96,8 +97,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Login response:', response.data);
 
       if (response.status === 200) {
-        // The backend sends { message: string, user: { user: { id: string, name: string, email: string } } }
-        const userData = response.data.user.user;
+        // The backend sends { message: string, user: { id: string, name: string, email: string } }
+        const userData = response.data.user;
         
         if (!userData || !userData.id || !userData.email) {
           console.error('Invalid user data received:', userData);
