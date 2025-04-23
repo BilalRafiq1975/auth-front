@@ -138,6 +138,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Set user state
         setUser(userData);
         
+        // After successful registration, automatically log in the user
+        const loginResponse = await axiosInstance.post('/auth/login', { email, password });
+        if (loginResponse.status === 200) {
+          console.log('Auto-login after registration successful');
+          return true;
+        }
+        
         console.log('Registration successful, user set:', userData);
         return true;
       }
