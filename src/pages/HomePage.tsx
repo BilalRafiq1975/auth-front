@@ -1,9 +1,27 @@
 import React from "react";
 import { useAuth } from "../auth/AuthContext";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const HomePage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-gray-700 text-lg font-medium">Loading user data...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-red-600 font-semibold">
+          No user data found. Please login again.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -18,9 +36,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-gray-100">
-                <span className="text-sm font-medium text-gray-600">
-                  {user?.email}
-                </span>
+                <span className="text-sm font-medium text-gray-600">{user.email}</span>
               </div>
               <button
                 onClick={logout}
@@ -40,7 +56,7 @@ const HomePage: React.FC = () => {
             <div className="flex items-center space-x-4 mb-6">
               <h1 className="text-3xl font-bold text-gray-900">
                 Welcome back,{" "}
-                <span className="text-indigo-600">{user?.name}</span>!
+                <span className="text-indigo-600">{user.name}</span>!
               </h1>
             </div>
 
@@ -52,7 +68,6 @@ const HomePage: React.FC = () => {
             <div className="space-y-6">
               <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
                 <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                  
                   Account Details
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -60,13 +75,13 @@ const HomePage: React.FC = () => {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       Email
                     </p>
-                    <p className="text-gray-800 font-medium">{user?.email}</p>
+                    <p className="text-gray-800 font-medium">{user.email}</p>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       User ID
                     </p>
-                    <p className="text-gray-800 font-medium">{user?.id}</p>
+                    <p className="text-gray-800 font-medium">{user._id}</p>
                   </div>
                 </div>
               </div>
