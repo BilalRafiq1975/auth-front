@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app/api',
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 // Add a request interceptor to include the token if available
-api.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use((config) => {
   // Get token from cookie
   const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
   
@@ -21,7 +21,7 @@ api.interceptors.request.use((config) => {
 });
 
 // Add a response interceptor for error handling
-api.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
@@ -33,4 +33,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default axiosInstance;
