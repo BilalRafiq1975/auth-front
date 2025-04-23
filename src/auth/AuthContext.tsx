@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:4000/api', // Replace with your backend API base URL
+  baseURL: import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app/api', // Use environment variable or fallback to deployed URL
   headers: {
     'Content-Type': 'application/json',
   },
