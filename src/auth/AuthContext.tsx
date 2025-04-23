@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000', // Use local backend URL during development
+  baseURL: (import.meta.env.VITE_API_URL || 'http://localhost:4000') + '/api', // Add /api prefix
   headers: {
     'Content-Type': 'application/json',
   },
