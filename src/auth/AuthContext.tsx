@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { login, register, logout, getCurrentUser } from '../services/auth.service';
 
-interface User {
+export interface User {
   id: string;
   email: string;
   name: string;

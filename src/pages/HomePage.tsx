@@ -83,7 +83,7 @@ const HomePage: React.FC = () => {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       User ID
                     </p>
-                    <p className="text-gray-800 font-medium">{user._id || "Not available"}</p>
+                    <p className="text-gray-800 font-medium">{user.id || "Not available"}</p>
                   </div>
                 </div>
               </div>
