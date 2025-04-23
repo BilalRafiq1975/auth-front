@@ -1,9 +1,11 @@
 import React, { JSX } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './auth/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
+import RegisterPage from './pages/RegisterPage';
+import TodosPage from './pages/TodosPage';
 import HomePage from './pages/HomePage';
+import RequireAuth from './components/RequireAuth';
 
 function App() {
   return (
@@ -11,7 +13,15 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/todos"
+            element={
+              <RequireAuth>
+                <TodosPage />
+              </RequireAuth>
+            }
+          />
           <Route
             path="/"
             element={
@@ -20,21 +30,11 @@ function App() {
               </RequireAuth>
             }
           />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
   );
-}
-
-function RequireAuth({ children }: { children: JSX.Element }) {
-  const { user } = useAuth();
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
 }
 
 export default App;
