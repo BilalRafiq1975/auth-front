@@ -12,13 +12,18 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+    
     setError('');
     setLoading(true);
     
     try {
+      console.log('Attempting login...');
       await login(email, password);
-      navigate('/');
+      console.log('Login successful, navigating...');
+      navigate('/', { replace: true });
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || 'Invalid email or password');
     } finally {
       setLoading(false);
@@ -38,7 +43,7 @@ const LoginPage: React.FC = () => {
             {error}
           </div>
         )}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="email" className="sr-only">
@@ -54,6 +59,7 @@ const LoginPage: React.FC = () => {
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div>
@@ -70,6 +76,7 @@ const LoginPage: React.FC = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
           </div>
@@ -88,6 +95,7 @@ const LoginPage: React.FC = () => {
           <button
             onClick={() => navigate('/signup')}
             className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+            disabled={loading}
           >
             Don't have an account? Sign up
           </button>
