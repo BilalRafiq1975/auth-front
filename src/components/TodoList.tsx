@@ -7,7 +7,7 @@ export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  useAuth();
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
 
   useEffect(() => {
