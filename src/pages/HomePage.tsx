@@ -66,7 +66,7 @@ const HomePage: React.FC = () => {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       User ID
                     </p>
-                    <p className="text-gray-800 font-medium">{user?._id}</p>
+                    <p className="text-gray-800 font-medium">{user?.id}</p>
                   </div>
                 </div>
               </div>
