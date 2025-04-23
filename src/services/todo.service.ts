@@ -5,7 +5,7 @@ export interface Todo {
   completed: boolean;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const todoService = {
   async getTodos(): Promise<Todo[]> {
