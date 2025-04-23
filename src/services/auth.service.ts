@@ -58,7 +58,7 @@ export const logout = (): void => {
 
 export const getCurrentUser = async (): Promise<AuthResponse['user'] | null> => {
   try {
-    const response = await axiosInstance.get<AuthResponse['user']>('/auth/me');
+    const response = await axiosInstance.get<AuthResponse['user']>('/auth/profile');
     return response.data;
   } catch (error) {
     return null;
