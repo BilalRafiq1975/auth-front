@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Todo, todoService } from '../services/todo.service';
+import { Todo } from '../services/todo.service';
+import todoService from '../services/todo.service';
 import { useAuth } from '../auth/AuthContext';
 import TodoEditForm from './TodoEditForm';
 
@@ -16,7 +17,7 @@ export default function TodoList() {
 
   const loadTodos = async () => {
     try {
-      const data = await todoService.getTodos();
+      const data = await todoService.getAllTodos();
       setTodos(data);
       setError(null);
     } catch (err) {
@@ -38,6 +39,8 @@ export default function TodoList() {
   const handleToggleComplete = async (todo: Todo) => {
     try {
       const updatedTodo = await todoService.updateTodo(todo._id, {
+        title: todo.title,
+        description: todo.description,
         completed: !todo.completed
       });
       setTodos(todos.map(t => t._id === todo._id ? updatedTodo : t));
