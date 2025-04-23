@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Todo, todoService } from '../services/todo.service';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../auth/AuthContext';
 
 export default function TodoList() {
   const [todos, setTodos] = useState<Todo[]>([]);
