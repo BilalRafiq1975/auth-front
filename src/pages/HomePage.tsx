@@ -1,5 +1,6 @@
 import React from "react";
 import { useAuth } from "../auth/AuthContext";
+import { Link } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -69,6 +70,15 @@ const HomePage: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="text-center mt-8">
+              <Link
+                to="/todos"
+                className="inline-block bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              >
+                View My Todos
+              </Link>
             </div>
           </div>
         </div>
