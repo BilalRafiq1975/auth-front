@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const HomePage: React.FC = () => {
   const { user, logout, loading } = useAuth();
 
+  // Show loading indicator while fetching user data
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -13,7 +14,8 @@ const HomePage: React.FC = () => {
     );
   }
 
-  if (!user) {
+  // Show error if user is not logged in
+  if (!user || !user.email) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-red-600 font-semibold">
@@ -56,7 +58,7 @@ const HomePage: React.FC = () => {
             <div className="flex items-center space-x-4 mb-6">
               <h1 className="text-3xl font-bold text-gray-900">
                 Welcome back,{" "}
-                <span className="text-indigo-600">{user.name}</span>!
+                <span className="text-indigo-600">{user.name || "User"}</span>!
               </h1>
             </div>
 
@@ -81,7 +83,7 @@ const HomePage: React.FC = () => {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       User ID
                     </p>
-                    <p className="text-gray-800 font-medium">{user._id}</p>
+                    <p className="text-gray-800 font-medium">{user._id || "Not available"}</p>
                   </div>
                 </div>
               </div>
