@@ -1,63 +1,48 @@
-import axios from 'axios';
-import { API_URL } from '../config';
-
 export interface Todo {
   _id: string;
   title: string;
   description: string;
   completed: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
-export interface CreateTodoDto {
-  title: string;
-  description: string;
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export interface UpdateTodoDto {
-  title?: string;
-  description?: string;
-  completed?: boolean;
-}
-
-class TodoService {
-  private readonly baseUrl = `${API_URL}/todos`;
-
-  async createTodo(data: CreateTodoDto): Promise<Todo> {
-    const response = await axios.post(this.baseUrl, data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-    return response.data;
-  }
-
+export const todoService = {
   async getTodos(): Promise<Todo[]> {
-    const response = await axios.get(this.baseUrl, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
+    const res = await fetch(`${API_BASE_URL}/todos`, {
+      credentials: 'include',
     });
-    return response.data;
-  }
+    if (!res.ok) throw new Error('Failed to fetch todos');
+    return res.json();
+  },
 
-  async updateTodo(id: string, data: UpdateTodoDto): Promise<Todo> {
-    const response = await axios.patch(`${this.baseUrl}/${id}`, data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
+  async createTodo(data: { title: string; description: string }) {
+    const res = await fetch(`${API_BASE_URL}/todos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
     });
-    return response.data;
-  }
+    if (!res.ok) throw new Error('Failed to create todo');
+    return res.json();
+  },
 
-  async deleteTodo(id: string): Promise<void> {
-    await axios.delete(`${this.baseUrl}/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
+  async deleteTodo(id: string) {
+    const res = await fetch(`${API_BASE_URL}/todos/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
     });
-  }
-}
+    if (!res.ok) throw new Error('Failed to delete todo');
+  },
 
-export const todoService = new TodoService(); 
+  async updateTodo(id: string, updates: Partial<Todo>) {
+    const res = await fetch(`${API_BASE_URL}/todos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error('Failed to update todo');
+    return res.json();
+  }
+};
