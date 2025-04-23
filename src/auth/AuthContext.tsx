@@ -25,6 +25,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: async () => false,
   logout: async () => {},
+  register: async () => false,
 });
 
 // Custom hook for accessing auth context
@@ -115,9 +117,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Register function to create a new user
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    try {
+      console.log('Starting registration process...');
+      const response = await axiosInstance.post('/auth/register', { name, email, password });
+      console.log('Registration response:', response.data);
+
+      if (response.status === 201) {
+        const userData = response.data.user;
+        
+        if (!userData || !userData.id || !userData.email) {
+          console.error('Invalid user data received:', userData);
+          return false;
+        }
+
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Set user state
+        setUser(userData);
+        
+        console.log('Registration successful, user set:', userData);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Registration failed:', error);
+      return false;
+    }
+  };
+
   // Pass down context values
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, register }}>
       {children}
     </AuthContext.Provider>
   );
