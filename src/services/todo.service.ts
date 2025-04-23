@@ -38,7 +38,7 @@ const todoService = {
 
   updateTodo: async (id: string, todo: { title: string; description: string; completed: boolean }) => {
     try {
-      const response = await axios.put(`${API_URL}/todos/${id}`, todo, {
+      const response = await axios.patch(`${API_URL}/todos/${id}`, todo, {
         withCredentials: true,
       });
       return response.data;
