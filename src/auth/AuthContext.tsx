@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Create an axios instance with default configurations
 const axiosInstance = axios.create({
@@ -24,14 +25,14 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   login: async () => false,
-  logout: () => {},
+  logout: async () => {},
 });
 
 // Custom hook for accessing auth context
@@ -41,53 +42,33 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // On initial load, check if user is stored in localStorage
+  // On initial load, validate token with the server
   useEffect(() => {
-    const checkAuth = async () => {
+    const validateAuth = async () => {
       try {
-        // Try to get user data from localStorage first
-        const storedUser = localStorage.getItem('user');
-        
-        if (storedUser) {
-          try {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
-            console.log('User loaded from localStorage:', parsedUser);
-          } catch (error) {
-            console.error('Error parsing stored user:', error);
-            localStorage.removeItem('user');
-          }
-        } else {
-          console.log('No user data found in localStorage.');
-        }
-        
         // Verify authentication with the server
-        try {
-          const response = await axiosInstance.get('/auth/me');
-          if (response.status === 200 && response.data.user) {
-            // Update user data from server
-            const userData = response.data.user;
-            setUser(userData);
-            localStorage.setItem('user', JSON.stringify(userData));
-            console.log('User authenticated with server:', userData);
-          }
-        } catch (error) {
-          console.error('Error verifying authentication:', error);
-          // If server verification fails, clear local data
-          localStorage.removeItem('user');
-          setUser(null);
-          // Don't redirect here, let the RequireAuth component handle it
+        const response = await axiosInstance.get('/auth/me');
+        if (response.status === 200 && response.data.user) {
+          const userData = response.data.user;
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          console.log('User authenticated with server:', userData);
         }
       } catch (error) {
-        console.error('Error during authentication check:', error);
+        console.error('Error verifying authentication:', error);
+        // If server verification fails, clear local data
+        localStorage.removeItem('user');
+        setUser(null);
+        navigate('/login');
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
-  }, []);
+    validateAuth();
+  }, [navigate]);
 
   // Login function to authenticate the user
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -97,7 +78,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Login response:', response.data);
 
       if (response.status === 200) {
-        // The backend sends { message: string, user: { id: string, name: string, email: string } }
         const userData = response.data.user;
         
         if (!userData || !userData.id || !userData.email) {
@@ -122,12 +102,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Logout function to clear the session
-  const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    setUser(null);
-    window.location.href = '/login';
-    console.log('User logged out');
+  const logout = async () => {
+    try {
+      // Call backend logout endpoint to clear the cookie
+      await axiosInstance.post('/auth/logout');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      // Clear local storage and state regardless of backend response
+      localStorage.removeItem('user');
+      setUser(null);
+      navigate('/login');
+      console.log('User logged out');
+    }
   };
 
   // Pass down context values
