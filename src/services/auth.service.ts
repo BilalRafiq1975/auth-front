@@ -12,43 +12,43 @@ interface RegisterData {
   password: string;
 }
 
-interface AuthResponse {
-  access_token: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+interface BackendUser {
+  _id: string;
+  name: string;
+  email: string;
 }
 
-export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
-  try {
-    const response = await axiosInstance.post<AuthResponse>('/auth/login', credentials);
-    const { access_token, user } = response.data;
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
-    return response.data;
-  } catch (error) {
-    if ((error as AxiosError)?.response?.status === 401) {
-      throw new Error('Invalid credentials');
-    }
-    throw error;
-  }
+interface TransformedUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface AuthResponse {
+  user: BackendUser;
+  token: string;
+}
+
+const transformUser = (user: BackendUser): TransformedUser => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+});
+
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
+  const response = await axiosInstance.post<AuthResponse>('/auth/login', { email, password });
+  const { user, token } = response.data;
+  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('token', token);
+  return response.data;
 };
 
-export const register = async (data: RegisterData): Promise<AuthResponse> => {
-  try {
-    const response = await axiosInstance.post<AuthResponse>('/auth/register', data);
-    const { access_token, user } = response.data;
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
-    return response.data;
-  } catch (error) {
-    if ((error as AxiosError)?.response?.status === 409) {
-      throw new Error('Email already exists');
-    }
-    throw error;
-  }
+export const register = async (userData: RegisterData): Promise<AuthResponse> => {
+  const response = await axiosInstance.post<AuthResponse>('/auth/register', userData);
+  const { user, token } = response.data;
+  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('token', token);
+  return response.data;
 };
 
 export const logout = (): void => {
@@ -56,11 +56,8 @@ export const logout = (): void => {
   localStorage.removeItem('user');
 };
 
-export const getCurrentUser = async (): Promise<AuthResponse['user'] | null> => {
-  try {
-    const response = await axiosInstance.get<AuthResponse['user']>('/auth/profile');
-    return response.data;
-  } catch (error) {
-    return null;
-  }
+export const getCurrentUser = (): TransformedUser | null => {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return null;
+  return JSON.parse(userStr);
 }; 
