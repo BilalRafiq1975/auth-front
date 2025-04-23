@@ -1,4 +1,6 @@
-import api from '../api';
+import axios from 'axios';
+
+const API_URL = 'https://auth-back-production.up.railway.app/api';
 
 export interface Todo {
   _id: string;
@@ -9,23 +11,54 @@ export interface Todo {
   updatedAt: string;
 }
 
-export const todoService = {
-  async getTodos(): Promise<Todo[]> {
-    const response = await api.get<Todo[]>('/todos');
-    return response.data;
+const todoService = {
+  getAllTodos: async () => {
+    try {
+      const response = await axios.get(`${API_URL}/todos`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching todos:', error);
+      throw error;
+    }
   },
 
-  async createTodo(data: { title: string; description: string }) {
-    const response = await api.post<Todo>('/todos', data);
-    return response.data;
+  createTodo: async (todo: { title: string; description: string }) => {
+    try {
+      const response = await axios.post(`${API_URL}/todos`, todo, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating todo:', error);
+      throw error;
+    }
   },
 
-  async deleteTodo(id: string) {
-    await api.delete(`/todos/${id}`);
+  updateTodo: async (id: string, todo: { title: string; description: string; completed: boolean }) => {
+    try {
+      const response = await axios.put(`${API_URL}/todos/${id}`, todo, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating todo:', error);
+      throw error;
+    }
   },
 
-  async updateTodo(id: string, updates: Partial<Todo>) {
-    const response = await api.patch<Todo>(`/todos/${id}`, updates);
-    return response.data;
-  }
+  deleteTodo: async (id: string) => {
+    try {
+      const response = await axios.delete(`${API_URL}/todos/${id}`, {
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+      throw error;
+    }
+  },
 };
+
+export default todoService;
