@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
       navigate('/', { replace: true });
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Invalid email or password');
+      setError(err.response?.data?.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }

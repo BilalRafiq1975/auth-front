@@ -13,7 +13,6 @@ interface RegisterData {
 }
 
 interface AuthResponse {
-  access_token: string;
   user: {
     id: string;
     name: string;
@@ -23,10 +22,9 @@ interface AuthResponse {
 
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   try {
-    const response = await axiosInstance.post<AuthResponse>('/auth/login', credentials);
-    const { access_token, user } = response.data;
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
+    const response = await axiosInstance.post<AuthResponse>('/auth/login', credentials, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     if ((error as AxiosError)?.response?.status === 401) {
@@ -38,10 +36,9 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
 
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
   try {
-    const response = await axiosInstance.post<AuthResponse>('/auth/register', data);
-    const { access_token, user } = response.data;
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
+    const response = await axiosInstance.post<AuthResponse>('/auth/register', data, {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     if ((error as AxiosError)?.response?.status === 409) {
@@ -52,13 +49,15 @@ export const register = async (data: RegisterData): Promise<AuthResponse> => {
 };
 
 export const logout = (): void => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  // The cookie will be automatically removed by the browser when it expires
+  // or when the user logs out on the server side
 };
 
 export const getCurrentUser = async (): Promise<AuthResponse['user'] | null> => {
   try {
-    const response = await axiosInstance.get<AuthResponse['user']>('/auth/profile');
+    const response = await axiosInstance.get<AuthResponse['user']>('/auth/me', {
+      withCredentials: true,
+    });
     return response.data;
   } catch (error) {
     return null;

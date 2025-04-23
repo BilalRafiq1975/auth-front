@@ -1,35 +1,42 @@
 import axios from 'axios';
-import { API_URL } from '../config';
 
 const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
   },
   withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add response interceptor for error handling
-axiosInstance.interceptors.response.use(
-  (response) => response,
+// Add request interceptor for logging
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log('Request:', config);
+    return config;
+  },
   (error) => {
-    if (error.response?.status === 401) {
-      // Clear auth data on 401
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
+    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance; 
+// Add response interceptor for logging and error handling
+axiosInstance.interceptors.response.use(
+  (response) => {
+    console.log('Response:', response);
+    return response;
+  },
+  (error) => {
+    console.error('Response Error:', error);
+    
+    if (error.response?.status === 401) {
+      // Clear user data on unauthorized
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
