@@ -11,21 +11,21 @@ export interface Todo {
 
 export const todoService = {
   async getTodos(): Promise<Todo[]> {
-    const response = await api.get<Todo[]>('/api/todos');
+    const response = await api.get<Todo[]>('/todos');
     return response.data;
   },
 
   async createTodo(data: { title: string; description: string }) {
-    const response = await api.post<Todo>('/api/todos', data);
+    const response = await api.post<Todo>('/todos', data);
     return response.data;
   },
 
   async deleteTodo(id: string) {
-    await api.delete(`/api/todos/${id}`);
+    await api.delete(`/todos/${id}`);
   },
 
   async updateTodo(id: string, updates: Partial<Todo>) {
-    const response = await api.patch<Todo>(`/api/todos/${id}`, updates);
+    const response = await api.patch<Todo>(`/todos/${id}`, updates);
     return response.data;
   }
 };
