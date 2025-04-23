@@ -1,6 +1,5 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 // Create an axios instance with default configurations
 const axiosInstance = axios.create({
@@ -42,7 +41,6 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   // On initial load, validate token with the server
   useEffect(() => {
@@ -61,14 +59,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // If server verification fails, clear local data
         localStorage.removeItem('user');
         setUser(null);
-        navigate('/login');
       } finally {
         setLoading(false);
       }
     };
 
     validateAuth();
-  }, [navigate]);
+  }, []);
 
   // Login function to authenticate the user
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -112,7 +109,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Clear local storage and state regardless of backend response
       localStorage.removeItem('user');
       setUser(null);
-      navigate('/login');
+      // Use window.location for navigation to avoid Router context issues
+      window.location.href = '/login';
       console.log('User logged out');
     }
   };
