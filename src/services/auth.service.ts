@@ -1,4 +1,4 @@
-import api from '../api';
+import axiosInstance from './axiosInstance';
 import { AxiosError } from 'axios';
 
 interface LoginCredentials {
@@ -15,7 +15,7 @@ interface RegisterData {
 interface AuthResponse {
   access_token: string;
   user: {
-    _id: string;
+    id: string;
     name: string;
     email: string;
   };
@@ -23,33 +23,31 @@ interface AuthResponse {
 
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>('/auth/login', credentials);
+    const response = await axiosInstance.post<AuthResponse>('/auth/login', credentials);
     const { access_token, user } = response.data;
     localStorage.setItem('token', access_token);
     localStorage.setItem('user', JSON.stringify(user));
     return response.data;
   } catch (error) {
-    const axiosError = error as AxiosError;
-    if (axiosError.response?.status === 401) {
-      throw new Error('Invalid email or password');
+    if ((error as AxiosError)?.response?.status === 401) {
+      throw new Error('Invalid credentials');
     }
-    throw new Error('Login failed. Please try again.');
+    throw error;
   }
 };
 
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>('/auth/register', data);
+    const response = await axiosInstance.post<AuthResponse>('/auth/register', data);
     const { access_token, user } = response.data;
     localStorage.setItem('token', access_token);
     localStorage.setItem('user', JSON.stringify(user));
     return response.data;
   } catch (error) {
-    const axiosError = error as AxiosError;
-    if (axiosError.response?.status === 409) {
+    if ((error as AxiosError)?.response?.status === 409) {
       throw new Error('Email already exists');
     }
-    throw new Error('Registration failed. Please try again.');
+    throw error;
   }
 };
 
@@ -60,7 +58,7 @@ export const logout = (): void => {
 
 export const getCurrentUser = async (): Promise<AuthResponse['user'] | null> => {
   try {
-    const response = await api.get<AuthResponse['user']>('/auth/profile');
+    const response = await axiosInstance.get<AuthResponse['user']>('/auth/me');
     return response.data;
   } catch (error) {
     return null;

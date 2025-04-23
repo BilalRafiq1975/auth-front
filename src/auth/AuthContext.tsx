@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { login, register, logout, getCurrentUser } from '../services/auth.service';
 
 interface User {
-  _id: string;
+  id: string;
   email: string;
   name: string;
 }
