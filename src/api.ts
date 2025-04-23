@@ -1,11 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000',
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app',
   headers: {
     'Content-Type': 'application/json',
-    'X-Requested-With': 'XMLHttpRequest',
     'Accept': 'application/json',
   },
 });
@@ -28,10 +26,6 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
-    } else if (error.response?.status === 0) {
-      // Handle CORS errors
-      console.error('CORS Error:', error);
-      throw new Error('Network error. Please check your connection and try again.');
     }
     return Promise.reject(error);
   }

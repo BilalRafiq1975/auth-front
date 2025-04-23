@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import api from '../api';
+import { login, register, logout, getCurrentUser } from '../services/auth.service';
 
 interface User {
   _id: string;
@@ -34,11 +34,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (storedToken) {
         setToken(storedToken);
         try {
-          const response = await api.get('/auth/profile');
-          setUser(response.data);
-          localStorage.setItem('user', JSON.stringify(response.data));
+          const userData = await getCurrentUser();
+          if (userData) {
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+          } else {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setToken(null);
+            setUser(null);
+          }
         } catch (error) {
-          // If token verification fails, clear everything
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setToken(null);
@@ -51,59 +57,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    try {
-      const response = await api.post('/auth/login', {
-        email,
-        password,
-      }, {
-        withCredentials: true,  // Fix added here for CORS issue
-      });
-
-      const { access_token } = response.data;
-      localStorage.setItem('token', access_token);
-      setToken(access_token);
-
-      const userResponse = await api.get('/auth/profile');
-      setUser(userResponse.data);
-      localStorage.setItem('user', JSON.stringify(userResponse.data));
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        throw new Error('Invalid email or password');
-      }
-      throw new Error('Login failed. Please try again.');
-    }
+  const handleLogin = async (email: string, password: string) => {
+    const response = await login({ email, password });
+    setToken(response.access_token);
+    setUser(response.user);
   };
 
-  const register = async (name: string, email: string, password: string) => {
-    try {
-      const response = await api.post('/auth/register', {
-        name,
-        email,
-        password,
-      });
-
-      const { access_token, ...userData } = response.data;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setToken(access_token);
-      setUser(userData);
-    } catch (error: any) {
-      if (error.response?.status === 409) {
-        throw new Error('Email already exists');
-      }
-      throw new Error('Registration failed. Please try again.');
-    }
+  const handleRegister = async (name: string, email: string, password: string) => {
+    const response = await register({ name, email, password });
+    setToken(response.access_token);
+    setUser(response.user);
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const handleLogout = () => {
+    logout();
     setToken(null);
     setUser(null);
   };
 
-  const value = { user, token, login, register, logout, loading };
+  const value = {
+    user,
+    token,
+    login: handleLogin,
+    register: handleRegister,
+    logout: handleLogout,
+    loading,
+  };
 
   return (
     <AuthContext.Provider value={value}>

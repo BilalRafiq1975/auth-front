@@ -13,9 +13,9 @@ interface RegisterData {
 }
 
 interface AuthResponse {
-  token: string;
+  access_token: string;
   user: {
-    id: string;
+    _id: string;
     name: string;
     email: string;
   };
@@ -24,8 +24,8 @@ interface AuthResponse {
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   try {
     const response = await api.post<AuthResponse>('/auth/login', credentials);
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
+    const { access_token, user } = response.data;
+    localStorage.setItem('token', access_token);
     localStorage.setItem('user', JSON.stringify(user));
     return response.data;
   } catch (error) {
@@ -40,13 +40,13 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
 export const register = async (data: RegisterData): Promise<AuthResponse> => {
   try {
     const response = await api.post<AuthResponse>('/auth/register', data);
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
+    const { access_token, user } = response.data;
+    localStorage.setItem('token', access_token);
     localStorage.setItem('user', JSON.stringify(user));
     return response.data;
   } catch (error) {
     const axiosError = error as AxiosError;
-    if (axiosError.response?.status === 400) {
+    if (axiosError.response?.status === 409) {
       throw new Error('Email already exists');
     }
     throw new Error('Registration failed. Please try again.');
@@ -58,17 +58,11 @@ export const logout = (): void => {
   localStorage.removeItem('user');
 };
 
-export const verifyToken = async (): Promise<AuthResponse> => {
+export const getCurrentUser = async (): Promise<AuthResponse['user'] | null> => {
   try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No token found');
-    }
-    const response = await api.get<AuthResponse>('/auth/verify');
+    const response = await api.get<AuthResponse['user']>('/auth/profile');
     return response.data;
   } catch (error) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    throw new Error('Session expired. Please login again.');
+    return null;
   }
 }; 
