@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Todo } from '../services/todo.service';
-import todoService from '../services/todo.service';
+import todoService, { Todo } from '../services/todo.service';
 
 interface TodoEditFormProps {
   todo: Todo;
