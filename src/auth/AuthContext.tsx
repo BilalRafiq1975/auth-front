@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app', // Remove /api prefix
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000', // Use local backend URL during development
   headers: {
     'Content-Type': 'application/json',
   },
