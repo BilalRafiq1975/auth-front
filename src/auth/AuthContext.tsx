@@ -72,18 +72,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const handleLogin = async (email: string, password: string) => {
     console.log('Starting login process...');
     try {
-      const response = await login(email, password);
+      const response = await login({ email, password });
       console.log('Login response:', response);
-      setToken(response.token);
-      setUser({
-        ...response.user,
-        id: response.user._id // Assuming the backend sends _id
-      });
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify({
-        ...response.user,
-        id: response.user._id
-      }));
+      setToken(response.access_token);
+      setUser(response.user);
+      localStorage.setItem('token', response.access_token);
+      localStorage.setItem('user', JSON.stringify(response.user));
       console.log('Login successful, user and token set');
     } catch (error) {
       console.error('Login error:', error);
@@ -96,16 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await register({ name, email, password });
       console.log('Registration response:', response);
-      setToken(response.token);
-      setUser({
-        ...response.user,
-        id: response.user._id // Assuming backend sends _id like in login
-      });
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify({
-        ...response.user,
-        id: response.user._id
-      }));
+      setToken(response.access_token);
+      setUser(response.user);
+      localStorage.setItem('token', response.access_token);
+      localStorage.setItem('user', JSON.stringify(response.user));
       console.log('Registration successful, user and token set');
     } catch (error) {
       console.error('Registration error:', error);
