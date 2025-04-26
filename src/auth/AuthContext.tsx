@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL: 'https://auth-back-production.up.railway.app/api',
+  baseURL: 'https://auth-back-production.up.railway.app',
   headers: {
     'Content-Type': 'application/json',
   },
