@@ -51,7 +51,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Verify authentication with the server
         const response = await axiosInstance.get('/auth/me');
         if (response.status === 200 && response.data.user) {
-          const userData = response.data.user;
+          const backendUser = response.data.user;
+          // Transform backend user data to match frontend interface
+          const userData = {
+            id: backendUser._id,
+            name: backendUser.name,
+            email: backendUser.email
+          };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
           console.log('User authenticated with server:', userData);
@@ -77,12 +83,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Login response:', response.data);
 
       if (response.status === 200) {
-        const userData = response.data.user;
+        const backendUser = response.data.user;
         
-        if (!userData || !userData.id || !userData.email) {
-          console.error('Invalid user data received:', userData);
+        if (!backendUser || !backendUser._id || !backendUser.email) {
+          console.error('Invalid user data received:', backendUser);
           return false;
         }
+
+        // Transform backend user data to match frontend interface
+        const userData = {
+          id: backendUser._id,
+          name: backendUser.name,
+          email: backendUser.email
+        };
 
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(userData));
@@ -125,12 +138,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Registration response:', response.data);
 
       if (response.status === 201) {
-        const userData = response.data.user;
+        const backendUser = response.data.user;
         
-        if (!userData || !userData.id || !userData.email) {
-          console.error('Invalid user data received:', userData);
+        if (!backendUser || !backendUser._id || !backendUser.email) {
+          console.error('Invalid user data received:', backendUser);
           return false;
         }
+
+        // Transform backend user data to match frontend interface
+        const userData = {
+          id: backendUser._id,
+          name: backendUser.name,
+          email: backendUser.email
+        };
 
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(userData));
