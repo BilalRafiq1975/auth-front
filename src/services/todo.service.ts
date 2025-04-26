@@ -11,12 +11,19 @@ export interface Todo {
   updatedAt: string;
 }
 
+// Create axios instance with default config
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 const todoService = {
   getAllTodos: async () => {
     try {
-      const response = await axios.get(`${API_URL}/todos`, {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.get('/todos');
       return response.data;
     } catch (error) {
       console.error('Error fetching todos:', error);
@@ -26,9 +33,7 @@ const todoService = {
 
   createTodo: async (todo: { title: string; description: string }) => {
     try {
-      const response = await axios.post(`${API_URL}/todos`, todo, {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.post('/todos', todo);
       return response.data;
     } catch (error) {
       console.error('Error creating todo:', error);
@@ -38,9 +43,7 @@ const todoService = {
 
   updateTodo: async (id: string, todo: { title: string; description: string; completed: boolean }) => {
     try {
-      const response = await axios.patch(`${API_URL}/todos/${id}`, todo, {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.patch(`/todos/${id}`, todo);
       return response.data;
     } catch (error) {
       console.error('Error updating todo:', error);
@@ -50,9 +53,7 @@ const todoService = {
 
   deleteTodo: async (id: string) => {
     try {
-      const response = await axios.delete(`${API_URL}/todos/${id}`, {
-        withCredentials: true,
-      });
+      const response = await axiosInstance.delete(`/todos/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting todo:', error);
