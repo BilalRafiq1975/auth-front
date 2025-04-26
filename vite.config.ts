@@ -11,16 +11,17 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'https://auth-back-production.up.railway.app',
         changeOrigin: true,
-        secure: false,
+        secure: true,
+        credentials: 'include',
       },
     },
   },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false,
+    sourcemap: true,
     minify: 'terser',
     rollupOptions: {
       output: {

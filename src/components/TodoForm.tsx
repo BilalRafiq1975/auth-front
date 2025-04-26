@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { todoService } from '../services/todo.service';
+import todoService from '../services/todo.service';
 
 export default function TodoForm({ onTodoCreated }: { onTodoCreated: () => void }) {
   const [title, setTitle] = useState('');

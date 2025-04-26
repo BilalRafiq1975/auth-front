@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Todo, todoService } from '../services/todo.service';
+import todoService, { Todo } from '../services/todo.service';
 
 interface TodoEditFormProps {
   todo: Todo;
@@ -15,11 +15,15 @@ export default function TodoEditForm({ todo, onCancel, onUpdate }: TodoEditFormP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await todoService.updateTodo(todo._id, { title, description });
+      await todoService.updateTodo(todo._id, {
+        title,
+        description,
+        completed: todo.completed
+      });
       setError(null);
       onUpdate();
-    } catch (err) {
-      setError('Failed to update todo');
+    } catch (error) {
+      console.error('Error updating todo:', error);
     }
   };
 

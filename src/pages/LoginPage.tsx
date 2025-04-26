@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
 const LoginPage: React.FC = () => {
@@ -9,6 +9,10 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the redirect path from location state or default to home
+  const from = (location.state as any)?.from?.pathname || '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,12 +23,17 @@ const LoginPage: React.FC = () => {
     
     try {
       console.log('Attempting login...');
-      await login(email, password);
-      console.log('Login successful, navigating...');
-      navigate('/', { replace: true });
+      const success = await login(email, password);
+      
+      if (success) {
+        console.log('Login successful, navigating to:', from);
+        navigate(from, { replace: true });
+      } else {
+        setError('Invalid email or password');
+      }
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Invalid email or password');
+      setError(err.response?.data?.message || 'An error occurred during login');
     } finally {
       setLoading(false);
     }

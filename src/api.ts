@@ -1,29 +1,27 @@
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app',
+const axiosInstance = axios.create({
+  baseURL: 'https://auth-back-production.up.railway.app/api', // Use the production backend URL
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
+  withCredentials: true, // Enable sending cookies with requests
 });
 
-// Add a request interceptor to include the token if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;  // Add token here
-  }
+// Add a request interceptor
+axiosInstance.interceptors.request.use((config) => {
+  // We don't need to manually set the token in the Authorization header
+  // because the cookie will be sent automatically with withCredentials: true
   return config;
 });
 
 // Add a response interceptor for error handling
-api.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       // Clear auth data on 401
-      localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
@@ -31,4 +29,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default axiosInstance;

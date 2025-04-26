@@ -15,7 +15,7 @@ const HomePage: React.FC = () => {
   }
 
   // Show error if user is not logged in
-  if (!user || !user.email) {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-red-600 font-semibold">
@@ -24,6 +24,11 @@ const HomePage: React.FC = () => {
       </div>
     );
   }
+
+  // Safely access user properties with optional chaining
+  const userName = user?.name || "User";
+  const userEmail = user?.email || "No email available";
+  const userId = user?.id || "Not available";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -38,7 +43,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-gray-100">
-                <span className="text-sm font-medium text-gray-600">{user.email}</span>
+                <span className="text-sm font-medium text-gray-600">{userEmail}</span>
               </div>
               <button
                 onClick={logout}
@@ -58,7 +63,7 @@ const HomePage: React.FC = () => {
             <div className="flex items-center space-x-4 mb-6">
               <h1 className="text-3xl font-bold text-gray-900">
                 Welcome back,{" "}
-                <span className="text-indigo-600">{user.name || "User"}</span>!
+                <span className="text-indigo-600">{userName}</span>!
               </h1>
             </div>
 
@@ -77,13 +82,13 @@ const HomePage: React.FC = () => {
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       Email
                     </p>
-                    <p className="text-gray-800 font-medium">{user.email}</p>
+                    <p className="text-gray-800 font-medium">{userEmail}</p>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                       User ID
                     </p>
-                    <p className="text-gray-800 font-medium">{user.id || "Not available"}</p>
+                    <p className="text-gray-800 font-medium">{userId}</p>
                   </div>
                 </div>
               </div>
