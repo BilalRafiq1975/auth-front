@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://auth-back-production.up.railway.app/api';
+const API_URL = 'https://auth-back-production.up.railway.app';
 
 export interface Todo {
   _id: string;
