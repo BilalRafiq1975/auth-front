@@ -1,127 +1,81 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { login, register, logout, getCurrentUser } from '../services/auth.service';
+import { createContext, useState, useEffect, useContext } from 'react';
+import axios from 'axios';
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-}
+// Create an axios instance with default configurations
+const axiosInstance = axios.create({
+  baseURL: 'http://localhost:5000/api', // Replace with your backend API base URL
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true, // Enable sending cookies with requests
+});
 
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
-  loading: boolean;
-}
+export default axiosInstance;
 
-const AuthContext = createContext<AuthContextType>(null!);
+// Create context
+const AuthContext = createContext({
+  user: null,
+  login: (email: string, password: string) => {},
+  logout: () => {},
+});
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const raw = localStorage.getItem('user');
-      if (raw && raw !== 'undefined') {
-        return JSON.parse(raw);
-      }
-    } catch (err) {
-      console.error('Failed to parse user from localStorage:', err);
-    }
-    return null;
-  });
+// Custom hook for accessing auth context
+export const useAuth = () => useContext(AuthContext);
 
-  const [token, setToken] = useState<string | null>(() => {
-    const rawToken = localStorage.getItem('token');
-    return rawToken && rawToken !== 'undefined' ? rawToken : null;
-  });
+// AuthProvider component to wrap your app
+export const AuthProvider = ({ children }: any) => {
+  const [user, setUser] = useState<any>(null);
 
-  const [loading, setLoading] = useState(true);
-
+  // On initial load, check if user is stored in localStorage
   useEffect(() => {
-    const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken && storedToken !== 'undefined') {
-        setToken(storedToken);
-        try {
-          const userData = await getCurrentUser();
-          if (userData) {
-            setUser(userData);
-            localStorage.setItem('user', JSON.stringify(userData));
-          } else {
-            clearAuthData();
-          }
-        } catch (error) {
-          console.error("Error fetching current user:", error);
-          clearAuthData();
-        }
-      }
-      setLoading(false);
-    };
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
 
-    initializeAuth();
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser)); // Parse and set user data from localStorage
+      console.log('User loaded from localStorage:', JSON.parse(storedUser));
+    } else {
+      console.log('No user data found in localStorage.');
+    }
   }, []);
 
-  const clearAuthData = () => {
+  // Login function to authenticate the user
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await axiosInstance.post('/login', { email, password });
+      console.log('Login response:', response.data);
+
+      if (response.status === 200) {
+        const { token, user } = response.data;
+        
+        // Store the token and user data in localStorage
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user)); // Store user data as JSON string
+
+        // Set user state to reflect logged-in user
+        setUser(user);
+
+        // Optionally: Redirect or show a success message
+        console.log('Login successful, user set');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
+  // Logout function to clear the session
+  const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setToken(null);
     setUser(null);
+    window.location.href = '/login'; // Optionally, redirect to login page
+    console.log('User logged out');
   };
 
-  const handleLogin = async (email: string, password: string) => {
-    console.log('Starting login process...');
-    try {
-      const response = await login({ email, password });
-      console.log('Login response:', response);
-      setToken(response.access_token);
-      setUser(response.user);
-      localStorage.setItem('token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      console.log('Login successful, user and token set');
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
-  };
-
-  const handleRegister = async (name: string, email: string, password: string) => {
-    console.log('Starting registration process...');
-    try {
-      const response = await register({ name, email, password });
-      console.log('Registration response:', response);
-      setToken(response.access_token);
-      setUser(response.user);
-      localStorage.setItem('token', response.access_token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      console.log('Registration successful, user and token set');
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    clearAuthData();
-  };
-
-  const value = {
-    user,
-    token,
-    login: handleLogin,
-    register: handleRegister,
-    logout: handleLogout,
-    loading,
-  };
-
+  // Pass down context values
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
-}
+};
