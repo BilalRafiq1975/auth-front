@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import todoService, { Todo } from '../services/todo.service';
+import { todoService, Todo } from '../services/todo.service';
 
 interface TodoEditFormProps {
   todo: Todo;
@@ -30,13 +30,13 @@ export default function TodoEditForm({ todo, onCancel, onUpdate }: TodoEditFormP
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="p-3 bg-red-100 text-red-700 rounded-md border border-red-300 text-sm">
+        <div className="p-4 bg-red-500/20 text-red-300 rounded-lg border border-red-500/30 text-sm">
           {error}
         </div>
       )}
 
       <div>
-        <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-1">
+        <label htmlFor="title" className="block text-sm font-semibold text-gray-300 mb-2">
           Title
         </label>
         <input
@@ -45,12 +45,13 @@ export default function TodoEditForm({ todo, onCancel, onUpdate }: TodoEditFormP
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800"
+          className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition placeholder-gray-400"
+          placeholder="Enter todo title"
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-1">
+        <label htmlFor="description" className="block text-sm font-semibold text-gray-300 mb-2">
           Description
         </label>
         <textarea
@@ -59,7 +60,8 @@ export default function TodoEditForm({ todo, onCancel, onUpdate }: TodoEditFormP
           onChange={(e) => setDescription(e.target.value)}
           required
           rows={4}
-          className="w-full px-3 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800"
+          className="w-full px-4 py-3 rounded-lg border border-white/10 bg-white/5 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition placeholder-gray-400"
+          placeholder="Enter todo description"
         />
       </div>
 
@@ -67,13 +69,13 @@ export default function TodoEditForm({ todo, onCancel, onUpdate }: TodoEditFormP
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400"
+          className="px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg hover:opacity-90 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900"
         >
           Save Changes
         </button>

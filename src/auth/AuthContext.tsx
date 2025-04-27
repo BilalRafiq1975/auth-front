@@ -1,22 +1,12 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-
-// Create an axios instance with default configurations
-const axiosInstance = axios.create({
-  baseURL: 'https://auth-back-production.up.railway.app',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // Enable sending cookies with requests
-});
-
-export default axiosInstance;
+import api from '../config/axios';
 
 // Define user type
 interface User {
   id: string;
   name: string;
   email: string;
+  role: string;
 }
 
 // Create context with proper types
@@ -25,7 +15,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  register: (name: string, email: string, password: string, role?: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -48,25 +38,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const validateAuth = async () => {
       try {
+        const token = localStorage.getItem('token');
+        const savedUser = localStorage.getItem('user');
+        
+        if (!token || !savedUser) {
+          setLoading(false);
+          return;
+        }
+
         // Verify authentication with the server
-        const response = await axiosInstance.get('/auth/me');
+        const response = await api.get('/auth/me');
+        
         if (response.status === 200 && response.data.user) {
           const backendUser = response.data.user;
-          // Transform backend user data to match frontend interface
           const userData = {
             id: backendUser._id,
             name: backendUser.name,
-            email: backendUser.email
+            email: backendUser.email,
+            role: backendUser.role || 'user'
           };
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          console.log('User authenticated with server:', userData);
         }
-      } catch (error) {
-        console.error('Error verifying authentication:', error);
-        // If server verification fails, clear local data
-        localStorage.removeItem('user');
-        setUser(null);
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
@@ -78,63 +78,64 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Login function to authenticate the user
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      console.log('Starting login process...');
-      const response = await axiosInstance.post('/auth/login', { email, password });
-      console.log('Login response:', response.data);
+      setLoading(true);
+      const response = await api.post('/auth/login', { email, password });
 
       if (response.status === 200) {
         const backendUser = response.data.user;
         
         if (!backendUser || !backendUser._id || !backendUser.email) {
-          console.error('Invalid user data received:', backendUser);
-          return false;
+          throw new Error('Invalid user data received');
         }
 
-        // Transform backend user data to match frontend interface
         const userData = {
           id: backendUser._id,
           name: backendUser.name,
-          email: backendUser.email
+          email: backendUser.email,
+          role: backendUser.role || 'user'
         };
 
-        // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(userData));
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          document.cookie = `token=${response.data.token}; path=/; secure; samesite=none`;
+        }
         
-        // Set user state
         setUser(userData);
-        
-        console.log('Login successful, user set:', userData);
         return true;
       }
       return false;
-    } catch (error) {
-      console.error('Login failed:', error);
-      return false;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   // Logout function to clear the session
   const logout = async () => {
     try {
-      // Call backend logout endpoint to clear the cookie
-      await axiosInstance.post('/auth/logout');
-    } catch (error) {
+      setLoading(true);
+      await api.post('/auth/logout');
+    } catch (error: any) {
       console.error('Error during logout:', error);
     } finally {
-      // Clear local storage and state regardless of backend response
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       setUser(null);
-      // Use window.location for navigation to avoid Router context issues
-      window.location.href = '/login';
-      console.log('User logged out');
+      setLoading(false);
     }
   };
 
   // Register function to create a new user
-  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+  const register = async (name: string, email: string, password: string, role: string = 'user'): Promise<boolean> => {
     try {
       console.log('Starting registration process...');
-      const response = await axiosInstance.post('/auth/register', { name, email, password });
+      const response = await api.post('/auth/register', { name, email, password, role });
       console.log('Registration response:', response.data);
 
       if (response.status === 201) {
@@ -145,25 +146,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return false;
         }
 
-        // Transform backend user data to match frontend interface
         const userData = {
           id: backendUser._id,
           name: backendUser.name,
-          email: backendUser.email
+          email: backendUser.email,
+          role: backendUser.role || 'user'
         };
 
-        // Store user data in localStorage
+        // Store user data and token
         localStorage.setItem('user', JSON.stringify(userData));
-        
-        // Set user state
-        setUser(userData);
-        
-        // After successful registration, automatically log in the user
-        const loginResponse = await axiosInstance.post('/auth/login', { email, password });
-        if (loginResponse.status === 200) {
-          console.log('Auto-login after registration successful');
-          return true;
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          document.cookie = `token=${response.data.token}; path=/; secure; samesite=none`;
         }
+        
+        setUser(userData);
         
         console.log('Registration successful, user set:', userData);
         return true;
@@ -175,9 +172,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // Pass down context values
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, register }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );

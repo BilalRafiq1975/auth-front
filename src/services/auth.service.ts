@@ -20,6 +20,10 @@ interface AuthResponse {
   };
 }
 
+interface ErrorResponse {
+  message: string;
+}
+
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   try {
     const response = await axiosInstance.post<AuthResponse>('/auth/login', credentials, {
@@ -27,7 +31,12 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     });
     return response.data;
   } catch (error) {
-    if ((error as AxiosError)?.response?.status === 401) {
+    const axiosError = error as AxiosError<ErrorResponse>;
+    if (axiosError.response?.status === 401) {
+      const errorMessage = axiosError.response?.data?.message;
+      if (errorMessage?.includes('deactivated')) {
+        throw new Error('Account has been deactivated. Please contact admin.');
+      }
       throw new Error('Invalid credentials');
     }
     throw error;

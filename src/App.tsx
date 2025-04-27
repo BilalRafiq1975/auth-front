@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import TodosPage from './pages/TodosPage';
 import HomePage from './pages/HomePage';
+import UsersPage from './pages/UsersPage';
 import RequireAuth from './components/RequireAuth';
 
 function App() {
@@ -19,6 +20,14 @@ function App() {
             element={
               <RequireAuth>
                 <TodosPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <RequireAuth>
+                <UsersPage />
               </RequireAuth>
             }
           />

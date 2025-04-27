@@ -13,16 +13,16 @@ export default function TodosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10">
+    <div className="min-h-screen bg-gradient-to-tr from-slate-900 to-gray-950 text-white py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white/90 backdrop-blur-md shadow-xl rounded-2xl border border-gray-200 p-8">
+        <div className="bg-white/5 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 p-8">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
-              My <span className="text-indigo-600">Todos</span>
+            <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-500">
+              My Todos
             </h1>
             <Link
               to="/"
-              className="inline-block text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
+              className="text-indigo-400 hover:text-indigo-300 transition-colors duration-300 text-sm font-medium"
             >
               ← Back to Home
             </Link>

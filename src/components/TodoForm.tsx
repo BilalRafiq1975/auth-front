@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import todoService from '../services/todo.service';
+import { todoService } from '../services/todo.service';
 
 export default function TodoForm({ onTodoCreated }: { onTodoCreated: () => void }) {
   const [title, setTitle] = useState('');
@@ -21,15 +21,15 @@ export default function TodoForm({ onTodoCreated }: { onTodoCreated: () => void 
 
   return (
     <div className="max-w-2xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-6 bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-lg">
         {error && (
-          <div className="text-red-600 font-medium bg-red-100 border border-red-200 rounded p-3">
+          <div className="text-red-300 font-medium bg-red-500/20 border border-red-500/30 rounded-lg p-4">
             {error}
           </div>
         )}
 
         <div>
-          <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-1">
+          <label htmlFor="title" className="block text-sm font-semibold text-gray-300 mb-2">
             Title
           </label>
           <input
@@ -38,12 +38,13 @@ export default function TodoForm({ onTodoCreated }: { onTodoCreated: () => void 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            className="w-full px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            className="w-full px-4 py-3 text-white bg-white/5 border border-white/10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition placeholder-gray-400"
+            placeholder="Enter todo title"
           />
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-semibold text-gray-700 mb-1">
+          <label htmlFor="description" className="block text-sm font-semibold text-gray-300 mb-2">
             Description
           </label>
           <textarea
@@ -52,13 +53,14 @@ export default function TodoForm({ onTodoCreated }: { onTodoCreated: () => void 
             onChange={(e) => setDescription(e.target.value)}
             required
             rows={4}
-            className="w-full px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            className="w-full px-4 py-3 text-white bg-white/5 border border-white/10 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition placeholder-gray-400"
+            placeholder="Enter todo description"
           />
         </div>
 
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
+          className="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition"
         >
           Add Todo
         </button>

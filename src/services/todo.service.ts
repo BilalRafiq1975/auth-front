@@ -1,29 +1,18 @@
-import axios from 'axios';
-
-const API_URL = 'https://auth-back-production.up.railway.app';
+import api from '../config/axios';
 
 export interface Todo {
   _id: string;
   title: string;
-  description: string;
+  description?: string;
   completed: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-// Create axios instance with default config
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-const todoService = {
-  getAllTodos: async () => {
+export const todoService = {
+  async getAllTodos(): Promise<Todo[]> {
     try {
-      const response = await axiosInstance.get('/todos');
+      const response = await api.get('/todos');
       return response.data;
     } catch (error) {
       console.error('Error fetching todos:', error);
@@ -31,9 +20,9 @@ const todoService = {
     }
   },
 
-  createTodo: async (todo: { title: string; description: string }) => {
+  async createTodo(data: { title: string; description?: string }): Promise<Todo> {
     try {
-      const response = await axiosInstance.post('/todos', todo);
+      const response = await api.post('/todos', data);
       return response.data;
     } catch (error) {
       console.error('Error creating todo:', error);
@@ -41,9 +30,9 @@ const todoService = {
     }
   },
 
-  updateTodo: async (id: string, todo: { title: string; description: string; completed: boolean }) => {
+  async updateTodo(id: string, data: Partial<Todo>): Promise<Todo> {
     try {
-      const response = await axiosInstance.patch(`/todos/${id}`, todo);
+      const response = await api.patch(`/todos/${id}`, data);
       return response.data;
     } catch (error) {
       console.error('Error updating todo:', error);
@@ -51,15 +40,12 @@ const todoService = {
     }
   },
 
-  deleteTodo: async (id: string) => {
+  async deleteTodo(id: string): Promise<void> {
     try {
-      const response = await axiosInstance.delete(`/todos/${id}`);
-      return response.data;
+      await api.delete(`/todos/${id}`);
     } catch (error) {
       console.error('Error deleting todo:', error);
       throw error;
     }
-  },
+  }
 };
-
-export default todoService;
