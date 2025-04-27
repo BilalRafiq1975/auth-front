@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app/api',
+  baseURL: import.meta.env.DEV 
+    ? 'http://localhost:4000/api' 
+    : 'https://auth-back-production.up.railway.app/api',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_URL || 'https://auth-back-production.up.railway.app';
+const baseURL = import.meta.env.DEV 
+  ? 'http://localhost:4000' 
+  : 'https://auth-back-production.up.railway.app';
 
 const api = axios.create({
   baseURL,
